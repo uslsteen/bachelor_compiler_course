@@ -1,0 +1,3 @@
+[submodule "game_of_life"]
+	path = game_of_life
+	url = https://github.com/uslsteen/game_of_life.git
