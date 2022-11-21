@@ -15,7 +15,7 @@ list(APPEND TARGETS ${LANG_SRC})
 
 foreach(TARGET IN LISTS TARGETS)
   target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-  target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/include/grammar)
+  target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/src/grammar)
 
   target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
   target_compile_features(${TARGET} PRIVATE cxx_std_20)

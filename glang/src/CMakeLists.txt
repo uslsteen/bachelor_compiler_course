@@ -1,4 +1,6 @@
-SUBDIRS(DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+# SUBDIRS(DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+set(DIRS grammar parser driver)
+
 set(LANG_SRC ${DIRS})
 
 foreach(TARGET ${DIRS})
