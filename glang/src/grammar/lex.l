@@ -69,9 +69,6 @@ NAME              {LETTER}{LETTER_OR_DIG}*
 "while"           return yy::parser::token_type::WHILE;
 "break"           return yy::parser::token_type::BREAK;
 "return"          return yy::parser::token_type::RET;
-"class"           return yy::parser::token_type::CLASS;
-"method"          return yy::parser::token_type::METHOD;
-"this"            return yy::parser::token_type::THIS;
 
 .                 return yy::parser::token_type::ERR;
 
