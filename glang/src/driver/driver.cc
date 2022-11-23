@@ -3,7 +3,7 @@
 namespace yy {
 
 Driver::Driver(const std::string &name)
-    : m_lexer(new Lexer{}), m_module(new llvm::Module{name, m_context}) {
+    : m_lexer(new Lexer{}), builder(glang::Builder{name}) {
 
   std::string tmp{};
 
@@ -63,7 +63,7 @@ void Driver::report_syntax_error(const parser::context &ctx) {
   std::cerr << "line: " << loc.begin.line;
   std::cerr << ", column: " << loc.begin.column << std::endl;
 
-  if (lookahead == s_type::S_UNKNOWN) {
+  if (lookahead == symb_type::S_UNKNOWN) {
     dump_unexpected(ctx);
     return;
   }

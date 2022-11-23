@@ -1,5 +1,5 @@
 # SUBDIRS(DIRS ${CMAKE_CURRENT_SOURCE_DIR})
-set(DIRS grammar parser driver)
+set(DIRS grammar parser driver compiler)
 
 set(LANG_SRC ${DIRS})
 

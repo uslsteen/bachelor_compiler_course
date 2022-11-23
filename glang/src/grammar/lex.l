@@ -70,6 +70,9 @@ NAME              {LETTER}{LETTER_OR_DIG}*
 "break"           return yy::parser::token_type::BREAK;
 "return"          return yy::parser::token_type::RET;
 
+"print"           return yy::parser::token_type::OUTPUT;
+"read"            return yy::parser::token_type::INPUT;
+
 .                 return yy::parser::token_type::ERR;
 
 %%

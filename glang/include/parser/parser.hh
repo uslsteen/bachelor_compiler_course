@@ -8,7 +8,8 @@
 #include <FlexLexer.h>
 #endif // yyFlexLexer
 //
-#include "compiler.tab.hh"
+#include "../../src/grammar/compiler.tab.hh"
+//
 class Lexer : public yyFlexLexer {
 private:
   yy::location m_cur_loc{};
