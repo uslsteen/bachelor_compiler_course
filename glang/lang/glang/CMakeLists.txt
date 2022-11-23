@@ -1,0 +1,1 @@
+add_executable(glang lib.cc main.cc)

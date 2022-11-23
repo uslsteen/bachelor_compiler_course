@@ -2,7 +2,7 @@
 
 namespace glang {
 
-Builder::Builder(const std::string &name) : g_cont(GlangContext{name}) {
+Builder::Builder(const std::string &name) : g_cont({name}) {
 
   //! NOTE: glang standart library
 
@@ -18,14 +18,5 @@ Builder::Builder(const std::string &name) : g_cont(GlangContext{name}) {
   auto *glang_read = llvm::Function::Create(
       glang_readTy, llvm::Function::ExternalLinkage, "__glang_read", g_cont.module);
   //
-}
-
-void Builder::dump(std::ostream &out) {
-  std::string str{};
-  llvm::raw_string_ostream os(str);
-
-  g_cont.module.print(os, nullptr);
-  os.flush();
-  out << str;
 }
 } // namespace glang

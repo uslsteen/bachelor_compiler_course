@@ -2,32 +2,33 @@
 
 namespace yy {
 
-Driver::Driver(const std::string &name)
-    : m_lexer(new Lexer{}), builder(glang::Builder{name}) {
-
-  std::string tmp{};
-
-  std::ifstream input{};
-  input.open(name);
-
-  if (input.is_open()) {
-    while (input) {
-      std::string line{};
-      std::getline(input, line);
-      m_source_code.push_back(line);
-    }
-  }
-
-  m_lexer->switch_streams(input, std::cout);
-}
-
-bool Driver::parse() {
-  yy::parser parser(this);
-  bool res = parser.parse();
-
-  if (res)
-    std::cerr << "Compile error\n";
-}
+// Driver::Driver(const std::string &src, const std::string &out)
+//     : m_lexer(new Lexer{}), builder({src}) {
+// 
+//   std::string tmp{};
+// 
+//   std::ifstream input{};
+//   input.open(src);
+//   m_out.open(out, std::ofstream::out);
+// 
+//   if (input.is_open()) {
+//     while (input) {
+//       std::string line{};
+//       std::getline(input, line);
+//       m_source_code.push_back(line);
+//     }
+//   }
+// 
+//   m_lexer->switch_streams(input, std::cout);
+// }
+// 
+// bool Driver::parse() {
+//   yy::parser parser(this);
+//   bool res = parser.parse();
+// 
+//   if (res)
+//     std::cerr << "Compile error\n";
+// }
 
 parser::token_type Driver::yylex(parser::semantic_type *yylval,
                                  parser::location_type *loc) {
@@ -40,6 +41,7 @@ parser::token_type Driver::yylex(parser::semantic_type *yylval,
   }
   //
   case yy::parser::token_type::NAME: {
+    std::cout << "name TOKEN\n";
     std::string word(m_lexer->YYText());
     parser::semantic_type tmp;
     tmp.as<std::string>() = word;
