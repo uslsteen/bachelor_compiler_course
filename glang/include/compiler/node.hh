@@ -50,11 +50,54 @@ struct GlangContext {
   llvm::LLVMContext context{};
   llvm::Module module;
   llvm::IRBuilder<> builder;
+  //
+  llvm::Function *global_func = nullptr;
 
   //
   GlangContext(const std::string &name)
-      : context(), module(name, context), builder(context) {}
+      : context(), module(name, context), builder(context) {
+    //
+    global_func = createFunction(builder.getInt32Ty(), "global_func");
+    auto *bb = llvm::BasicBlock::Create(context, "", global_func);
+    //
+    builder.SetInsertPoint(bb);
+  }
+
+  llvm::Function *createFunction(llvm::Type *ret_type,
+                                 const std::string &func_name) {
+    llvm::FunctionType *func_type = llvm::FunctionType::get(ret_type, false);
+    //
+    llvm::Function *func = llvm::Function::Create(
+        func_type, llvm::Function::ExternalLinkage, func_name, module);
+    //
+    return func;
+  }
+
+  llvm::Function *createFunction(llvm::Type *ret_type,
+                                 std::vector<llvm::Type *> arg_types,
+                                 const std::string &func_name) {
+    llvm::ArrayRef<llvm::Type *> args{arg_types};
+    //
+    llvm::FunctionType *func_type =
+        llvm::FunctionType::get(ret_type, args, false);
+    //
+    llvm::Function *func = llvm::Function::Create(
+        func_type, llvm::Function::ExternalLinkage, func_name, module);
+    //
+    return func;
+  }
   //
+
+  llvm::Function *getFunction(const std::string &func_name) {
+    auto *func = module.getFunction(func_name);
+
+    if (func == nullptr)
+      return nullptr;
+    //! TODO: throw expection
+    // std::cerr << "nullptr func : " << func_name << std::endl;
+
+    return func;
+  }
 };
 
 /**
@@ -67,43 +110,38 @@ struct INode {
 };
 
 class IntNode : public INode {
+  //
+  std::int32_t m_val;
+
 public:
   IntNode(std::int32_t val) : m_val{val} {}
-
   //
   std::int32_t get() const { return m_val; }
 
-  //
   llvm::Value *codegen(GlangContext &context) override;
-
-private:
-  std::int32_t m_val;
 };
 
 class UnOpNode : public INode {
-public:
   //
-  UnOpNode(UnOp op, std::shared_ptr<INode> val) : m_val{val}, m_op{op} {}
-
-  //
-  llvm::Value *codegen(GlangContext &context) override;
-
-private:
   std::shared_ptr<INode> m_val;
   UnOp m_op;
+  //
+public:
+  UnOpNode(UnOp op, std::shared_ptr<INode> val) : m_val{val}, m_op{op} {}
+
+  llvm::Value *codegen(GlangContext &context) override;
 };
 
 class BinOpNode : public INode {
+  //
+  std::shared_ptr<INode> m_lhs, m_rhs;
+  BinOp m_op;
+  //
 public:
   BinOpNode(std::shared_ptr<INode> lhs, BinOp op, std::shared_ptr<INode> rhs)
       : m_lhs{lhs}, m_rhs{rhs}, m_op{op} {}
-  
-  //
-  llvm::Value *codegen(GlangContext &context) override;
 
-private:
-  std::shared_ptr<INode> m_lhs, m_rhs;
-  BinOp m_op;
+  llvm::Value *codegen(GlangContext &context) override;
 };
 
 struct DeclNode : public INode {
@@ -111,17 +149,14 @@ struct DeclNode : public INode {
 };
 
 class DeclVarNode : public DeclNode {
+  //
+  llvm::Value *m_alloca = nullptr;
+
 public:
   llvm::Value *codegen(GlangContext &context) override;
 
-  //
   void store(GlangContext &context, llvm::Value *val);
-
-private:
-  llvm::Value *m_alloca = nullptr;
 };
-
-// class FuncDeclN;
 
 class ScopeNode : public INode {
 
@@ -131,7 +166,7 @@ public:
 private:
   std::vector<std::shared_ptr<INode>> m_childs;
   std::shared_ptr<ScopeNode> m_parent = nullptr;
-  // std::shared_ptr<FuncDeclNode> m_parentFunc = nullptr;
+
   sym_tab_t m_symb_tab;
 
 public:
@@ -170,22 +205,50 @@ public:
     m_symb_tab[name] = decl;
   }
 
-  /**
-   * @brief
-   *
-   * @param[in] builder
-   * @return llvm::Value*
-   */
-  llvm::Value *codegen(GlangContext &context) override;
+  const sym_tab_t &symb_tab() const { return m_symb_tab; }
 
-  const sym_tab_t &getSymTab() const { return m_symb_tab; }
+  llvm::Value *codegen(GlangContext &context) override;
 };
 
-class IfNode : public INode {};
+class IfNode : public INode {
+  //
+  std::shared_ptr<ScopeNode> m_if_scope;
+  std::shared_ptr<INode> m_cond;
+  std::shared_ptr<ScopeNode> m_p_scope;
+  //
+public:
+  IfNode(std::shared_ptr<ScopeNode> if_scope, std::shared_ptr<INode> cond,
+         std::shared_ptr<ScopeNode> p_scope)
+      : m_if_scope(if_scope), m_cond(cond), m_p_scope(p_scope) {}
+
+  llvm::Value *codegen(GlangContext &context) override;
+};
+
+class WhileNode : /* maybe public LoopNode */ public INode {
+  //
+  std::shared_ptr<ScopeNode> m_while_scope;
+  std::shared_ptr<INode> m_cond;
+  std::shared_ptr<ScopeNode> m_p_scope;
+  //
+public:
+  WhileNode(std::shared_ptr<ScopeNode> while_scope, std::shared_ptr<INode> cond,
+            std::shared_ptr<ScopeNode> p_scope)
+      : m_while_scope(while_scope), m_cond(cond), m_p_scope(p_scope) {}
+
+  llvm::Value *codegen(GlangContext &context) override;
+};
 
 class LoopNode : public INode {};
 
-class WhileNood : /* maybe public LoopNode */ public INode {};
+class RetNode : public INode {
+  //
+  std::shared_ptr<INode> m_val;
+  //
+public:
+  RetNode(std::shared_ptr<INode> val) : m_val(val) {}
+
+  llvm::Value *codegen(GlangContext &context) override;
+};
 
 class FuncDeclNode : public INode {};
 

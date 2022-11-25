@@ -1,8 +1,8 @@
 #ifndef DRIVER_HH
 #define DRIVER_HH
 //
-#include "parser/parser.hh"
 #include "compiler/builder.hh"
+#include "parser/parser.hh"
 //
 #include <filesystem>
 #include <fstream>
@@ -21,6 +21,8 @@ private:
   glang::Builder builder;
   //
   std::vector<std::string> m_source_code{};
+
+  std::ifstream m_in{};
   std::ofstream m_out{};
   //
 public:
@@ -30,32 +32,28 @@ public:
       : m_lexer(new Lexer{}), builder({src}) {
 
     std::string tmp{};
-
-    std::ifstream input{};
-    input.open(src);
+    //
+    m_in.open(src);
     m_out.open(out, std::ofstream::out);
-    std::cout << "Driver ctor\n";
-
-    if (input.is_open()) {
-      while (input) {
+    //
+    std::ifstream tmp_input(src);
+    //
+    if (tmp_input.is_open()) {
+      while (tmp_input) {
         std::string line{};
-        std::getline(input, line);
+        std::getline(tmp_input, line);
         m_source_code.push_back(line);
       }
     }
-
-    std::cout << "Driver ctor was ended\n";
-    for (auto& it : m_source_code)
-      std::cout << it << std::endl;
-
-    m_lexer->switch_streams(input, std::cout);
+    //
+    m_lexer->switch_streams(m_in, m_out);
   }
 
   /**
-   * @brief 
-   * 
-   * @return true 
-   * @return false 
+   * @brief
+   *
+   * @return true
+   * @return false
    */
   bool parse() {
     yy::parser parser(this);
@@ -83,19 +81,12 @@ public:
 
   // bool parse();
   //
-  void codegen() {
-    builder.codegen();
-  }
-  
+  void codegen() { builder.codegen(); }
+
   //
-  void dump() {
-    builder.dump(m_out);
-  }
+  void dump() { builder.dump(m_out); }
 
-  auto get_cur_scope() {
-    return builder.get_cur_scope();
-  }
-
+  auto get_cur_scope() { return builder.get_cur_scope(); }
 };
 
 } // namespace yy

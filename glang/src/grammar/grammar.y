@@ -72,20 +72,20 @@
 %token <int32_t>     INT
 %token <std::string> NAME
 
-%nterm<std::shared_ptr<glang::ScopeNode>>     global_scope
 %nterm<std::shared_ptr<glang::ScopeNode>>     scope
 %nterm<std::shared_ptr<glang::ScopeNode>>     open_scope
 %nterm<std::shared_ptr<glang::ScopeNode>>     close_scope
-%nterm<std::shared_ptr<glang::INode>>      decl
-%nterm<std::shared_ptr<glang::INode>>      l_value
-%nterm<std::shared_ptr<glang::INode>>      if 
-%nterm<std::shared_ptr<glang::INode>>      while
-%nterm<std::shared_ptr<glang::INode>>      stmts
-%nterm<std::shared_ptr<glang::INode>>      stmt
-%nterm<std::shared_ptr<glang::INode>>      expr
-%nterm<std::shared_ptr<glang::INode>>      expr_term
-%nterm<std::shared_ptr<glang::INode>>      input
-%nterm<std::shared_ptr<glang::INode>>      output
+%nterm<std::shared_ptr<glang::INode>>         decl
+%nterm<std::shared_ptr<glang::INode>>         cond
+%nterm<std::shared_ptr<glang::INode>>         l_value
+%nterm<std::shared_ptr<glang::INode>>         if 
+%nterm<std::shared_ptr<glang::INode>>         while
+%nterm<std::shared_ptr<glang::INode>>         stmts
+%nterm<std::shared_ptr<glang::INode>>         stmt
+%nterm<std::shared_ptr<glang::INode>>         expr
+%nterm<std::shared_ptr<glang::INode>>         expr_term
+%nterm<std::shared_ptr<glang::INode>>         input
+%nterm<std::shared_ptr<glang::INode>>         output
 
 %%
 // %nterm<std::shared_ptr<glang::INode>>      expr_un
@@ -94,45 +94,47 @@ program:        scope                           {
                                                     driver->codegen(); 
                                                 };
 
-scope:          open_scope stmts close_scope     {   $$ = $3;   };
+scope:          open_scope stmts close_scope    {   $$ = $3;   };
 
 open_scope:     LBRACE                          {
-                                                    auto&& scope = driver->get_cur_scope();
-                                                    scope = std::make_shared<glang::ScopeNode>(scope);
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    cur_scope = std::make_shared<glang::ScopeNode>(cur_scope);
                                                 };
 
 close_scope:    RBRACE                          {
-                                                    auto&& scope = driver->get_cur_scope();
-                                                    $$ = scope;
-                                                    scope = scope->get_parent();
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    $$ = cur_scope;
+                                                    cur_scope = cur_scope->get_parent();
                                                 };
 
 
 
 stmts:          stmt                            {
-                                                    auto&& scope = driver->get_cur_scope();
-                                                    scope->insert_node($1);
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    cur_scope->insert_node($1);
                                                 }; 
               | stmts stmt                      {
-                                                    auto&& scope = driver->get_cur_scope();
-                                                    scope->insert_node($2);
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    cur_scope->insert_node($2);
                                                 };
 
 stmt:           decl                            {   $$ = $1;   };
-              //| if                              {   $$ = $1;   };
-              //| while                           {   $$ = $1;   };
+              | input                           {   $$ = $1;   };
+              | output                          {   $$ = $1;   };
+              | if                              {   $$ = $1;   };
+              | while                           {   $$ = $1;   };
 
 decl:           l_value ASSIGN expr SCOLON      {   
                                                     $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::ASSIGN, $3);
                                                 };
 
 l_value:        NAME                            {
-                                                    auto&& scope = driver->get_cur_scope();
-                                                    auto&& decl = scope->get_decl($1);
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    auto&& decl = cur_scope->get_decl($1);
 
                                                     if (decl == nullptr) {
                                                         decl = std::make_shared<glang::DeclVarNode>();
-                                                        scope->insert_decl($1, decl);
+                                                        cur_scope->insert_decl($1, decl);
                                                     }
                                                     //
                                                     $$ = decl;
@@ -144,28 +146,49 @@ expr:           expr OR expr                    {   $$ = std::make_shared<glang:
               | expr NOT_EQ expr                {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::NOT_EQ, $3);   };
               | expr GREATER expr               {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GREATER, $3);  };
               | expr LESS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LESS, $3);     };
-              | expr LS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LS_EQ, $3);  };
+              | expr LS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LS_EQ, $3);    };
               | expr GR_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GR_EQ, $3);    };
               | expr PLUS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::PLUS, $3);     };
               | expr MIN expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MIN, $3);      };
               | expr MUL expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MUL, $3);      };
               | expr DIV expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::DIV, $3);      };
               | expr MOD expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MOD, $3);      };
-              | expr_term                       {   $$ = $1;                                                              };
+              | expr_term                       {   $$ = $1;                                                                 };
       
 expr_term:      NAME                            {
-                                                         auto&& scope = driver->get_cur_scope();
-                                                         auto&& node = scope->get_decl($1);
-                                                         assert(node != nullptr);
-                                                         $$ = node;
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    auto&& node = cur_scope->get_decl($1);
+                                                    assert(node != nullptr);
+                                                    $$ = node;
                                                 };
               | INT                             {   $$ = std::make_shared<glang::IntNode>($1);   };
 
 
-output:      OUTPUT expr SCOLON                 { $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::OUTPUT, $2); };
+output:         OUTPUT expr SCOLON              {   $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::OUTPUT, $2);   };
+input:          INPUT expr SCOLON               {   $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::OUTPUT, $2);   }
 
-// if:                                          {};
-//while:                                        {};
+
+cond:           NOT expr                        {   $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::NOT, $2);            };
+              | expr                            {   $$ = $1;                                                                 };
+
+if:             IF LPARENT cond RPARENT scope   {
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    $$ = std::make_shared<glang::IfNode>($5, $3, cur_scope);
+                                                }
+              | IF cond scope                   {
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    $$ = std::make_shared<glang::IfNode>($3, $2, cur_scope);
+                                                }
+
+
+while:          WHILE LBRACE cond RBRACE scope  {
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    $$ = std::make_shared<glang::IfNode>($5, $3, cur_scope);
+                                                };
+              | WHILE cond scope                {
+                                                    auto&& cur_scope = driver->get_cur_scope();
+                                                    $$ = std::make_shared<glang::IfNode>($3, $2, cur_scope);
+                                                };
 
 %%
 

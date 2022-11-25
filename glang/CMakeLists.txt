@@ -4,6 +4,8 @@ project(glang)
 include(cmake/subdirs.cmake)
 include(cmake/print.cmake)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 set(DIRS 3rd_party src lang)
 
 foreach(DIR ${DIRS})

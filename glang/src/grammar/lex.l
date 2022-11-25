@@ -60,9 +60,8 @@ NAME              {LETTER}{LETTER_OR_DIG}*
 "{"               return yy::parser::token_type::LBRACE;
 "}"               return yy::parser::token_type::RBRACE;
 
-{INT}             return yy::parser::token_type::INT;
-{NAME}            return yy::parser::token_type::NAME;
-{DOT}             return yy::parser::token_type::DOT;
+"print"           return yy::parser::token_type::OUTPUT;
+"read"            return yy::parser::token_type::INPUT;
 
 "if"              return yy::parser::token_type::IF;
 "else"            return yy::parser::token_type::ELSE;
@@ -70,8 +69,9 @@ NAME              {LETTER}{LETTER_OR_DIG}*
 "break"           return yy::parser::token_type::BREAK;
 "return"          return yy::parser::token_type::RET;
 
-"print"           return yy::parser::token_type::OUTPUT;
-"read"            return yy::parser::token_type::INPUT;
+{INT}             return yy::parser::token_type::INT;
+{NAME}            return yy::parser::token_type::NAME;
+{DOT}             return yy::parser::token_type::DOT;
 
 .                 return yy::parser::token_type::ERR;
 

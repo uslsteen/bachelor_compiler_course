@@ -1,4 +1,5 @@
 #include "compiler/node.hh"
+#include <iostream>
 
 namespace glang {
 
@@ -19,6 +20,7 @@ llvm::Value *ScopeNode::codegen(GlangContext &g_cont) {
   for (auto &&child : m_childs)
     child->codegen(g_cont);
   //
+  g_cont.builder.CreateRet(g_cont.builder.getInt32(0));
   return nullptr;
 }
 
@@ -88,7 +90,8 @@ llvm::Value *UnOpNode::codegen(GlangContext &g_cont) {
   auto &&module = g_cont.module;
   auto &&builder = g_cont.builder;
   //
-  llvm::Value *val;
+  llvm::Value *val = nullptr;
+  //
   if (m_val)
     val = m_val->codegen(g_cont);
   //
@@ -96,13 +99,15 @@ llvm::Value *UnOpNode::codegen(GlangContext &g_cont) {
   case UnOp::NOT:
     return builder.CreateNot(val);
   case UnOp::OUTPUT: {
+    //
     auto *glang_print = module.getFunction("__glang_print");
     assert(glang_print && "Driver shall create decl for __glang_print");
-
+    //
     llvm::Value *args[] = {val};
     return builder.CreateCall(glang_print, args);
   }
   case UnOp::INPUT: {
+    //
     auto *glang_read = module.getFunction("__glang_read");
     assert(glang_read && "Driver shall create decl for __glang_read");
     //
@@ -110,6 +115,58 @@ llvm::Value *UnOpNode::codegen(GlangContext &g_cont) {
   }
   };
 
+  return nullptr;
+}
+
+llvm::Value *IfNode::codegen(GlangContext &g_cont) {
+  auto &&module = g_cont.module;
+  auto &&builder = g_cont.builder;
+  //
+  auto *cur_func = g_cont.global_func;
+  //
+  llvm::BasicBlock *taken =
+      llvm::BasicBlock::Create(g_cont.context, "", cur_func);
+  llvm::BasicBlock *not_taken =
+      llvm::BasicBlock::Create(g_cont.context, "", cur_func);
+  //
+  auto *cond_codegen = m_cond->codegen(g_cont);
+  //
+  builder.CreateCondBr(cond_codegen, taken, not_taken);
+  //
+  builder.SetInsertPoint(taken);
+  m_if_scope->codegen(g_cont);
+  //
+  builder.CreateBr(not_taken);
+  builder.SetInsertPoint(not_taken);
+  //
+  return nullptr;
+}
+
+llvm::Value *WhileNode::codegen(GlangContext &g_cont) {
+  auto &&module = g_cont.module;
+  auto &&builder = g_cont.builder;
+  //
+  auto *cur_func = g_cont.global_func;
+  //
+  llvm::BasicBlock *taken =
+      llvm::BasicBlock::Create(g_cont.context, "", cur_func);
+  llvm::BasicBlock *not_taken =
+      llvm::BasicBlock::Create(g_cont.context, "", cur_func);
+  llvm::BasicBlock *cond_bb =
+      llvm::BasicBlock::Create(g_cont.context, "", cur_func);
+  //
+  builder.CreateBr(cond_bb);
+  builder.SetInsertPoint(cond_bb);
+  auto *cond_codegen = m_cond->codegen(g_cont);
+  //
+  builder.CreateCondBr(cond_codegen, taken, not_taken);
+  //
+  builder.SetInsertPoint(taken);
+  m_while_scope->codegen(g_cont);
+  //
+  builder.CreateBr(not_taken);
+  builder.SetInsertPoint(not_taken);
+  //
   return nullptr;
 }
 

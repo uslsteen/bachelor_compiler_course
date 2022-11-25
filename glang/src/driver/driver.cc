@@ -2,38 +2,11 @@
 
 namespace yy {
 
-// Driver::Driver(const std::string &src, const std::string &out)
-//     : m_lexer(new Lexer{}), builder({src}) {
-// 
-//   std::string tmp{};
-// 
-//   std::ifstream input{};
-//   input.open(src);
-//   m_out.open(out, std::ofstream::out);
-// 
-//   if (input.is_open()) {
-//     while (input) {
-//       std::string line{};
-//       std::getline(input, line);
-//       m_source_code.push_back(line);
-//     }
-//   }
-// 
-//   m_lexer->switch_streams(input, std::cout);
-// }
-// 
-// bool Driver::parse() {
-//   yy::parser parser(this);
-//   bool res = parser.parse();
-// 
-//   if (res)
-//     std::cerr << "Compile error\n";
-// }
-
 parser::token_type Driver::yylex(parser::semantic_type *yylval,
                                  parser::location_type *loc) {
   parser::token_type tkn_type =
       static_cast<parser::token_type>(m_lexer->yylex());
+  //
   switch (tkn_type) {
   case yy::parser::token_type::INT: {
     yylval->as<int64_t>() = std::stoll(m_lexer->YYText());
@@ -41,7 +14,7 @@ parser::token_type Driver::yylex(parser::semantic_type *yylval,
   }
   //
   case yy::parser::token_type::NAME: {
-    std::cout << "name TOKEN\n";
+    //
     std::string word(m_lexer->YYText());
     parser::semantic_type tmp;
     tmp.as<std::string>() = word;
@@ -53,6 +26,7 @@ parser::token_type Driver::yylex(parser::semantic_type *yylval,
   }
   }
 
+  std::cout << tkn_type << std::endl;
   *loc = m_lexer->get_cur_loc();
   return tkn_type;
 }

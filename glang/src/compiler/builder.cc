@@ -15,8 +15,14 @@ Builder::Builder(const std::string &name) : g_cont({name}) {
   auto *glang_print =
       llvm::Function::Create(glang_printTy, llvm::Function::ExternalLinkage,
                              "__glang_print", g_cont.module);
-  auto *glang_read = llvm::Function::Create(
-      glang_readTy, llvm::Function::ExternalLinkage, "__glang_read", g_cont.module);
+  //
+  glang_print->setDSOLocal(true);
+
+  auto *glang_read =
+      llvm::Function::Create(glang_readTy, llvm::Function::ExternalLinkage,
+                             "__glang_read", g_cont.module);
+
+  glang_read->setDSOLocal(true);
   //
 }
 } // namespace glang

@@ -39,7 +39,6 @@ public:
    * @param[in] out 
    */
   void dump(std::ofstream &out) {
-    std::cout << "Builder dump\n";
     std::string str{};
     llvm::raw_string_ostream os(str);
 
