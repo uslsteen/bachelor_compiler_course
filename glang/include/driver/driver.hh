@@ -26,8 +26,7 @@ private:
   std::ofstream m_out{};
   //
 public:
-  // Driver(const std::string &src, const std::string &out);
-
+  //
   Driver(const std::string &src, const std::string &out)
       : m_lexer(new Lexer{}), builder({src}) {
 
@@ -79,14 +78,14 @@ public:
   void dump_expected(const yy::parser::context &ctx);
   void dump_unexpected(const yy::parser::context &ctx);
 
-  // bool parse();
   //
   void codegen() { builder.codegen(); }
 
   //
   void dump() { builder.dump(m_out); }
 
-  auto get_cur_scope() { return builder.get_cur_scope(); }
+  auto& get_cur_scope() { return builder.get_cur_scope(); }
+  auto& get_cur_args() { return builder.get_cur_args(); }
 };
 
 } // namespace yy

@@ -24,14 +24,18 @@ NON_ZERO_DIG      [1-9]
 LETTER            [a-zA-Z]
 LETTER_OR_DIG     [A-Za-z0-9_]
 
-INT               {NON_ZERO_DIG}{DIG}*
+INT               [0]|{NON_ZERO_DIG}{DIG}*
 DOUBLE            {DIG}+{DOT}?{DIG}*
 NAME              {LETTER}{LETTER_OR_DIG}*
 
 %%
 
-{WS}              {}
-{ENDL}            {}
+"if"              return yy::parser::token_type::IF;
+"else"            return yy::parser::token_type::ELSE;
+"break"           return yy::parser::token_type::BREAK;
+"return"          return yy::parser::token_type::RET;
+"function"        return yy::parser::token_type::FUNC;
+"while"           return yy::parser::token_type::WHILE;
 
 "+"               return yy::parser::token_type::PLUS;
 "-"               return yy::parser::token_type::MIN;
@@ -59,15 +63,14 @@ NAME              {LETTER}{LETTER_OR_DIG}*
 ")"               return yy::parser::token_type::RPARENT;
 "{"               return yy::parser::token_type::LBRACE;
 "}"               return yy::parser::token_type::RBRACE;
+"["               return yy::parser::token_type::LSBR;
+"]"               return yy::parser::token_type::RSBR;
 
 "print"           return yy::parser::token_type::OUTPUT;
 "read"            return yy::parser::token_type::INPUT;
 
-"if"              return yy::parser::token_type::IF;
-"else"            return yy::parser::token_type::ELSE;
-"while"           return yy::parser::token_type::WHILE;
-"break"           return yy::parser::token_type::BREAK;
-"return"          return yy::parser::token_type::RET;
+{WS}              {}
+{ENDL}            {}
 
 {INT}             return yy::parser::token_type::INT;
 {NAME}            return yy::parser::token_type::NAME;

@@ -1,8 +1,8 @@
-{   
-    c = 3;
-    if (c == 3) 
-    {
-        print 1;
+function main() {
+    c = 4
+    if (c == 3) {
+        print 1
     }
-    print 2;
+    print 2
+    return 0
 }

@@ -14,10 +14,10 @@ class Builder {
   //! NOTE: wrap into unique ptr
   GlangContext g_cont;
   std::shared_ptr<ScopeNode> m_current_scope = std::make_shared<ScopeNode>();
+  std::vector<std::string> m_cur_args{};
 
 public:
   Builder() = delete;
-
   Builder(const std::string &name);
 
   /**
@@ -25,7 +25,8 @@ public:
    * 
    * @return auto 
    */
-  auto get_cur_scope() { return m_current_scope; }
+  auto& get_cur_scope() { return m_current_scope; }
+  auto& get_cur_args()  { return m_cur_args; }
 
   /**
    * @brief 

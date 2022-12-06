@@ -1,6 +1,15 @@
-{   
-    a = 1;
-    b = 2;
-    c = a + b;
-    print c;
+function bar() {
+    a = 3
+    return 1
+}
+function foo() {
+    a = 3
+    b = 3
+    return a
+}
+function main() {
+    a = 1
+    res = foo()
+    print res
+    return 0
 }

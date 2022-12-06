@@ -1,12 +1,14 @@
 function main() {
-    a = 1
+    a = 0
     iter = 0
-
-    while (a < 10) {
+    while (a < 100) {
         a = a + 2
         iter = iter + 1
+        if (a == 10) {
+            break
+        }  
+        print a
     }
-    
     print a
     print iter
     return 0

@@ -8,7 +8,7 @@
 #include <FlexLexer.h>
 #endif // yyFlexLexer
 //
-#include "../../src/grammar/compiler.tab.hh"
+#include "compiler.tab.hh"
 //
 class Lexer : public yyFlexLexer {
 private:

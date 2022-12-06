@@ -25,8 +25,8 @@ parser::token_type Driver::yylex(parser::semantic_type *yylval,
     break;
   }
   }
-
-  std::cout << tkn_type << std::endl;
+  //
+  // std::cout << tkn_type << std::endl;
   *loc = m_lexer->get_cur_loc();
   return tkn_type;
 }
