@@ -4,10 +4,10 @@ function main() {
     while (a < 100) {
         a = a + 2
         iter = iter + 1
+        print a
         if (a == 10) {
             break
         }  
-        print a
     }
     print a
     print iter

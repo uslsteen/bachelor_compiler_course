@@ -128,12 +128,14 @@ llvm::Value *IfNode::codegen(GlangContext &g_cont) {
   auto *cond_codegen = m_cond->codegen(g_cont);
   //
   builder.CreateCondBr(cond_codegen, taken, not_taken);
-  //
   builder.SetInsertPoint(taken);
-  m_if_scope->codegen(g_cont);
-  builder.CreateBr(not_taken);
-  builder.SetInsertPoint(not_taken);
   //
+  m_if_scope->codegen(g_cont);
+  //
+  if (!taken->getTerminator())
+    builder.CreateBr(not_taken);
+  //
+  builder.SetInsertPoint(not_taken);
   return nullptr;
 }
 
