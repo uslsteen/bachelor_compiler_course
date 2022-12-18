@@ -40,7 +40,7 @@ GLANG_BIN=build/bin/glang
 if [ -d ${GLANG_BUILD} ]; then
     if [ -f ${GLANG_BIN} ]; then
         ./build/bin/glang -O2 --source ${SOURCE} --output ${OUTPUT}.ll
-        clang++ lang/glang/lib.cc ${OUTPUT}.ll -o ${OUTPUT} 
+        clang++ -lsfml-window -lsfml-system -lsfml-graphics lang/glang/lib.cc ${OUTPUT}.ll -o ${OUTPUT} 
     else
         printf "${RED}Error${NC}: glang compiler binary file not exist"
     fi

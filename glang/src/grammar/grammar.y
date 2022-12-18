@@ -122,8 +122,8 @@ global_var:     NAME LSBR INT RSBR              {
                                                     $$ = cur_node;
                                                     cur_scope->insert_decl($1, cur_node);
                                                 };
-
-arr_access:     NAME LSBR expr_term RSBR        {
+//
+arr_access:     NAME LSBR expr RSBR             {
                                                     auto&& cur_scope = driver->get_cur_scope();
                                                     auto&& cur_node = cur_scope->get_decl($1);
                                                     //
@@ -224,6 +224,7 @@ expr:           expr OR expr                    {   $$ = std::make_shared<glang:
               | expr LS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LS_EQ, $3);    };
               | expr GR_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GR_EQ, $3);    };
               | expr PLUS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::PLUS, $3);     };
+              | LPARENT expr PLUS expr RPARENT  {   $$ = std::make_shared<glang::BinOpNode>($2, glang::BinOp::PLUS, $4);     }
               | expr MIN expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MIN, $3);      };
               | expr MUL expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MUL, $3);      };
               | expr DIV expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::DIV, $3);      };

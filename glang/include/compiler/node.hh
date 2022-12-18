@@ -293,6 +293,7 @@ public:
   //
   const std::vector<std::string> &get_args() const { return m_args; }
   const std::string &get_name() const { return m_name; }
+  void set_func(llvm::Function* func ) { m_func = func; }
 };
 
 class FuncNode : public INode {

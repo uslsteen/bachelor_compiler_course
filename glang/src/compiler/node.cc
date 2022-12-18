@@ -52,8 +52,7 @@ llvm::Value *BinOpNode::codegen(GlangContext &g_cont) {
   case BinOp::DIV:
     return builder.CreateSDiv(lhs, rhs);
   case BinOp::MOD:
-    //! TODO: implement operation
-    assert(0);
+    return builder.CreateSRem(lhs, rhs);
   case BinOp::MUL:
     return builder.CreateMul(lhs, rhs);
   case BinOp::AND:

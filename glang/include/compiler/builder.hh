@@ -22,22 +22,25 @@ public:
 
   /**
    * @brief Get the cur scope object
-   * 
-   * @return auto 
+   *
+   * @return auto
    */
-  auto& get_cur_scope() { return m_current_scope; }
-  auto& get_cur_args()  { return m_cur_args; }
+  auto &get_cur_scope() { return m_current_scope; }
+  auto &get_cur_args() { return m_cur_args; }
 
   /**
-   * @brief 
-   * 
+   * @brief
+   *
    */
   void codegen() { m_current_scope->codegen(g_cont); }
-  
+
+  void create_IO_inteface();
+  void create_Gl_interface();
+
   /**
-   * @brief 
-   * 
-   * @param[in] out 
+   * @brief
+   *
+   * @param[in] out
    */
   void dump(std::ofstream &out) {
     std::string str{};
