@@ -42,7 +42,6 @@ void DeclVarNode::store(GlangContext &g_cont, llvm::Value *val) {
 llvm::Value *BinOpNode::codegen(GlangContext &g_cont) {
   //
   auto &builder = g_cont.builder;
-
   llvm::Value *lhs = m_lhs->codegen(g_cont), *rhs = m_rhs->codegen(g_cont);
   //
   switch (m_op) {
@@ -77,6 +76,10 @@ llvm::Value *BinOpNode::codegen(GlangContext &g_cont) {
 
     if (std::shared_ptr<DeclVarNode> decl =
             std::dynamic_pointer_cast<DeclVarNode>(m_lhs))
+      decl->store(g_cont, rhs);
+
+    else if (std::shared_ptr<ArrAccessNode> decl =
+                 std::dynamic_pointer_cast<ArrAccessNode>(m_lhs))
       decl->store(g_cont, rhs);
 
     return nullptr;
@@ -253,7 +256,11 @@ llvm::Value *ArrAccessNode::codegen(GlangContext &g_cont) {
   auto *arr_type = arr_decl->get_arr_ty();
   //
   auto *index = m_access->codegen(g_cont);
-  m_ptr = builder.CreateGEP(arr_type, arr, {builder.getInt32(0), index});
+  m_ptr = builder.CreateGEP(arr_type, arr,
+                            {
+                                builder.getInt32(0),
+                                index,
+                            });
   return builder.CreateLoad(builder.getInt32Ty(), m_ptr);
 }
 

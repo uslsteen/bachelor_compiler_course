@@ -17,6 +17,11 @@ function foo() {
     return c
 }
 
+function some_call() {
+    print 666
+    return 0
+}
+
 function main() {
     arg1 = 1
     arg2 = 2
@@ -28,5 +33,7 @@ function main() {
     res_bar = bar(arg2)
     print res_bar
     print sum(arg1, arg2, arg3)
+    print some_call()
+    some_call()
     return 0
 }

@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
 //
 #if 0
   path_to_src =
-      std::string{"/home/anton/code/compiler_course/glang/tests/double_if.gl"},
-  output_path = {"/home/anton/code/compiler_course/glang/tests/double_if.ll"};
+      std::string{"/home/anton/code/compiler_course/glang/tests/array.gl"},
+  output_path = {"/home/anton/code/compiler_course/glang/tests/array.ll"};
 #endif
   //
   yy::Driver driver{path_to_src, output_path};

@@ -195,6 +195,7 @@ stmt:           decl                            {   $$ = $1;   };
               | while                           {   $$ = $1;   };
               | return                          {   $$ = $1;   };
               | BREAK                           {   $$ = std::make_shared<glang::BreakNode>();   };
+              | func_call                       {   $$ = $1;   };
               |                                 {};
 //
 decl:           l_value ASSIGN expr             {   
@@ -237,6 +238,7 @@ expr_term:      NAME                            {
                                                 };
               | INT                             {   $$ = std::make_shared<glang::IntNode>($1);   };
               | func_call                       {   $$ = $1;   };
+              | arr_access                      {   $$ = $1;   };
 
 //
 output:         OUTPUT expr                     {   $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::OUTPUT, $2);   };

@@ -65,6 +65,7 @@ public:
   }
   //
   ~Driver() {
+    m_in.close();
     m_out.close();
     delete m_lexer;
   }
@@ -84,8 +85,8 @@ public:
   //
   void dump() { builder.dump(m_out); }
 
-  auto& get_cur_scope() { return builder.get_cur_scope(); }
-  auto& get_cur_args() { return builder.get_cur_args(); }
+  auto &get_cur_scope() { return builder.get_cur_scope(); }
+  auto &get_cur_args() { return builder.get_cur_args(); }
 };
 
 } // namespace yy
