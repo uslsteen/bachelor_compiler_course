@@ -3,6 +3,8 @@ tmp_field[640000]
 
 function field_init() {
   x = 0
+  WIDTH = 800 
+  HEIGHT = 800
   while (x < WIDTH * HEIGHT) {
     main_field[x] = get_random_val()
     x = x + 1
@@ -17,8 +19,6 @@ function main() {
   zero = 0
   while (true == 1) {
     window_clear(zero, zero, zero)
-    draw_field() 
-    swap() 
     flush()
   }
   return 0

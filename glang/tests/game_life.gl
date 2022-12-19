@@ -1,10 +1,10 @@
-main_field[640000]
-tmp_field[640000]
+main_field[160000]
+tmp_field[160000]
 
 function field_init() {
   x = 0
-  WIDTH = 800
-  HEIGHT = 800
+  WIDTH = 400
+  HEIGHT = 400
   while (x < WIDTH * HEIGHT) {
     main_field[x] = get_random_val()
     x = x + 1
@@ -13,11 +13,10 @@ function field_init() {
 }
 
 function get_cell(x, y) {
-  WIDTH = 800
-  HEIGHT = 800
+  WIDTH = 400
+  HEIGHT = 400
   res_x = (x + WIDTH) % WIDTH
   res_y = (y + HEIGHT) % HEIGHT
-  
   return main_field[res_y * WIDTH + res_x]
 }
 
@@ -28,9 +27,14 @@ function get_neighbours_num(x, y) {
   y_minus_1 = y - 1
   y_plus_1 = y + 1
 
-  num = get_cell(x_minus_1, y_minus_1) + get_cell(x, y_minus_1) + get_cell(x_plus_1, y_minus_1) +
-        get_cell(x_plus_1, y) + get_cell(x_plus_1, y_plus_1) + get_cell(x, y_plus_1) +
-        get_cell(x_minus_1, y_plus_1) + get_cell(x_minus_1, y) 
+  num = num + get_cell(x_minus_1, y_minus_1)
+  num = num + get_cell(x, y_minus_1)
+  num = num + get_cell(x_plus_1, y_minus_1)
+  num = num + get_cell(x_plus_1, y)
+  num = num + get_cell(x_plus_1, y_plus_1)
+  num = num + get_cell(x, y_plus_1)
+  num = num + get_cell(x_minus_1, y_plus_1)
+  num = num + get_cell(x_minus_1, y)
 
   return num 
 }
@@ -38,8 +42,8 @@ function get_neighbours_num(x, y) {
 function make_next_gen() {
   x = 0
   y = 0
-  WIDTH = 800
-  HEIGHT = 800
+  WIDTH = 400
+  HEIGHT = 400
 
   DEAD = 0
   ALIVE = 1
@@ -53,22 +57,18 @@ function make_next_gen() {
       cur_cell = get_cell(x, y) 
 
       if (cur_cell == 1) {
-
-        if (neighbrs_num == 2 || neighbrs_num == 3) {
+        if ((neighbrs_num == 2) || (neighbrs_num == 3)) {
           state = ALIVE 
         }
-
-        if (neighbrs_num != 2 || neighbrs_num != 3) {
+        if (!((neighbrs_num == 2) || (neighbrs_num == 3))) {
           state = DEAD 
         }
       }
       if (cur_cell == 0) {
-
         if (neighbrs_num == 3) {
           state = ALIVE 
         }
-
-        if (neighbrs_num != 3) {
+        if (!(neighbrs_num == 3)) {
           state = DEAD 
         }
       }
@@ -77,8 +77,8 @@ function make_next_gen() {
       x = x + 1
     }
     y = y + 1
+    x = 0
   }
-
   return 0 
 }
 
@@ -87,8 +87,8 @@ function draw_field() {
   y = 0
   zero = 0
   green = 255
-  WIDTH = 800
-  HEIGHT = 800
+  WIDTH = 400
+  HEIGHT = 400
 
   while (x < WIDTH) {
     while (y < HEIGHT) {
@@ -102,6 +102,7 @@ function draw_field() {
       }
       y = y + 1
     }
+    y = 0
     x = x + 1
   }
   return 0
@@ -109,8 +110,8 @@ function draw_field() {
 
 function swap() {
   x = 0
-  WIDTH = 800
-  HEIGHT = 800
+  WIDTH = 400
+  HEIGHT = 400
 
   while (x < WIDTH * HEIGHT) {
     main_field[x] = tmp_field[x] 
@@ -132,6 +133,5 @@ function main() {
     swap() 
     flush()
   }
-
   return 0
 }

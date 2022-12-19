@@ -5,7 +5,7 @@ int main(int argc, char **argv) {
 
   std::string path_to_src{}, output_path{};
 
-#if 0
+#if 1
   CLI::App cli_app("Glang");
 
   cli_app.add_option("--source,-s", path_to_src, "Path to source code")
@@ -17,12 +17,10 @@ int main(int argc, char **argv) {
   CLI11_PARSE(cli_app, argc, argv);
 #endif
 //
-#if 1
+#if 0
   path_to_src =
-      std::string{
-          "/home/anton/code/compiler_course/glang/tests/window_create.gl"},
-  output_path = {
-      "/home/anton/code/compiler_course/glang/tests/window_create.ll"};
+      std::string{"/home/anton/code/compiler_course/glang/tests/double_if.gl"},
+  output_path = {"/home/anton/code/compiler_course/glang/tests/double_if.ll"};
 #endif
   //
   yy::Driver driver{path_to_src, output_path};

@@ -200,7 +200,8 @@ private:
   //
 public:
   ScopeNode() = default;
-  ScopeNode(std::shared_ptr<ScopeNode> parent) : m_parent{parent} {}
+  ScopeNode(std::shared_ptr<ScopeNode> parent)
+      : m_parent{parent}, m_symb_tab{parent->m_symb_tab} {}
 
   void insert_node(std::shared_ptr<INode> child) { m_childs.push_back(child); }
   //
@@ -293,7 +294,7 @@ public:
   //
   const std::vector<std::string> &get_args() const { return m_args; }
   const std::string &get_name() const { return m_name; }
-  void set_func(llvm::Function* func ) { m_func = func; }
+  void set_func(llvm::Function *func) { m_func = func; }
 };
 
 class FuncNode : public INode {

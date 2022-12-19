@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum AppParams { APP_WIDTH = 800, APP_HEIGHT = 800 };
+enum AppParams { APP_WIDTH = 400, APP_HEIGHT = 400 };
 
 #define EPS 0.1
 

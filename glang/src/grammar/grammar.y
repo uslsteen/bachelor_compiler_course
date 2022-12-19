@@ -87,7 +87,6 @@
 %nterm<std::shared_ptr<glang::INode>>                      stmts
 %nterm<std::shared_ptr<glang::INode>>                      stmt
 %nterm<std::shared_ptr<glang::INode>>                      expr
-%nterm<std::shared_ptr<glang::INode>>                      expr_term
 %nterm<std::shared_ptr<glang::INode>>                      args       
 %nterm<std::shared_ptr<glang::FuncDeclNode>>               signature
 %nterm<std::shared_ptr<glang::INode>>                      func
@@ -97,6 +96,14 @@
 %nterm<std::shared_ptr<glang::INode>>                      output
 %nterm<std::shared_ptr<glang::INode>>                      global_var
 %nterm<std::shared_ptr<glang::INode>>                      arr_access
+%nterm<std::shared_ptr<glang::INode>>      expr2
+%nterm<std::shared_ptr<glang::INode>>      expr3
+%nterm<std::shared_ptr<glang::INode>>      expr4
+%nterm<std::shared_ptr<glang::INode>>      expr6
+%nterm<std::shared_ptr<glang::INode>>      expr7
+%nterm<std::shared_ptr<glang::INode>>      expr11
+%nterm<std::shared_ptr<glang::INode>>      expr12
+%nterm<std::shared_ptr<glang::INode>>      expr0
 
 %%
 // %nterm<std::shared_ptr<glang::INode>>      expr_un
@@ -214,34 +221,53 @@ l_value:        NAME                            {
                                                     $$ = decl;
                                                 };
               | arr_access                      {   $$ = $1;   };
-//
-expr:           expr OR expr                    {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::OR, $3);       };
-              | expr AND expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::AND, $3);      };
-              | expr IS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::IS_EQ, $3);    };
-              | expr NOT_EQ expr                {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::NOT_EQ, $3);   };
-              | expr GREATER expr               {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GREATER, $3);  };
-              | expr LESS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LESS, $3);     };
-              | expr LS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LS_EQ, $3);    };
-              | expr GR_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GR_EQ, $3);    };
-              | expr PLUS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::PLUS, $3);     };
-              | LPARENT expr PLUS expr RPARENT  {   $$ = std::make_shared<glang::BinOpNode>($2, glang::BinOp::PLUS, $4);     }
-              | expr MIN expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MIN, $3);      };
-              | expr MUL expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MUL, $3);      };
-              | expr DIV expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::DIV, $3);      };
-              | expr MOD expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MOD, $3);      };
-              | expr_term                       {   $$ = $1;                                                                 };
-//
-expr_term:      NAME                            {
-                                                    auto&& cur_scope = driver->get_cur_scope();
-                                                    auto&& node = cur_scope->get_decl($1);
-                                                    assert(node != nullptr);
-                                                    $$ = node;
-                                                };
-              | INT                             {   $$ = std::make_shared<glang::IntNode>($1);   };
-              | func_call                       {   $$ = $1;   };
-              | arr_access                      {   $$ = $1;   };
 
-//
+
+// NOTE: operation priority was taken from Kiril Ivakin impl.
+// NOTE: it would be change in lang next versions
+expr:           expr12                              { $$ = $1; };
+
+expr12:         expr11 OR expr11                    { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::OR, $3); };  
+              | expr11                              { $$ = $1; };
+
+expr11:         expr7 AND expr7                     { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::AND, $3); };
+              | expr7                               { $$ = $1; };
+
+expr7:          expr6 IS_EQ expr6                   { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::IS_EQ, $3); };  
+              | expr6 NOT_EQ expr6                  { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::NOT_EQ, $3); };  
+              | expr6                               { $$ = $1; };
+
+expr6:          expr4 GREATER expr4                 { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GREATER, $3); };  
+              | expr4 LESS expr4                    { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LESS, $3); };  
+              | expr4 GR_EQ expr4                   { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GR_EQ, $3); };  
+              | expr4 LS_EQ expr4                   { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LS_EQ, $3); };
+              | expr4                               { $$ = $1; };
+
+expr4:          expr3 PLUS expr3                    { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::PLUS, $3); };
+              | expr3 MIN expr3                     { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MIN, $3); };
+              | expr3                               { $$ = $1; };
+
+expr3:          expr2 MUL expr2                     { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MUL, $3); };
+              | expr2 DIV expr2                     { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::DIV, $3); };
+              | expr2 MOD expr2                     { $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MOD, $3); };
+              | expr2                               { $$ = $1; };
+
+expr2:          NOT expr0                           { $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::NOT, $2); };
+              | expr0                               { $$ = $1; };
+
+expr0:          LPARENT expr12 RPARENT              { $$ = $2; }; 
+              | NAME                          
+                                                    {
+                                                         auto&& cur_scope = driver->get_cur_scope();
+                                                         auto&& node = cur_scope->get_decl($1);
+                                                         assert(node != nullptr);
+                                                         $$ = node;
+                                                    };
+              | INT                                 { $$ = std::make_shared<glang::IntNode>($1); };
+              | INPUT                               { $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::INPUT, nullptr); };
+              | func_call                           { $$ = $1; };
+              | arr_access                          { $$ = $1; }
+
 output:         OUTPUT expr                     {   $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::OUTPUT, $2);   };
 input:          INPUT expr                      {   $$ = std::make_shared<glang::UnOpNode>(glang::UnOp::OUTPUT, $2);   }
 //
@@ -282,6 +308,35 @@ return:         RET expr                        {
                                                     $$ = std::make_shared<glang::RetNode>($2);
                                                 };
 
+//
+// expr:           expr OR expr                    {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::OR, $3);       };
+//               | LPARENT expr OR expr RPARENT    {   $$ = std::make_shared<glang::BinOpNode>($2, glang::BinOp::OR, $4);       };
+//               | expr AND expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::AND, $3);      };
+//               | expr IS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::IS_EQ, $3);    };
+//               | expr NOT_EQ expr                {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::NOT_EQ, $3);   };
+//               | expr GREATER expr               {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GREATER, $3);  };
+//               | expr LESS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LESS, $3);     };
+//               | expr LS_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::LS_EQ, $3);    };
+//               | expr GR_EQ expr                 {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::GR_EQ, $3);    };
+//               | expr PLUS expr                  {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::PLUS, $3);     };
+//               | LPARENT expr PLUS expr RPARENT  {   $$ = std::make_shared<glang::BinOpNode>($2, glang::BinOp::PLUS, $4);     }
+//               | expr MIN expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MIN, $3);      };
+//               | expr MUL expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MUL, $3);      };
+//               | expr DIV expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::DIV, $3);      };
+//               | expr MOD expr                   {   $$ = std::make_shared<glang::BinOpNode>($1, glang::BinOp::MOD, $3);      };
+//               | expr_term                       {   $$ = $1;                                                                 };
+// //
+// expr_term:      NAME                            {
+//                                                     auto&& cur_scope = driver->get_cur_scope();
+//                                                     auto&& node = cur_scope->get_decl($1);
+//                                                     assert(node != nullptr);
+//                                                     $$ = node;
+//                                                 };
+//               | INT                             {   $$ = std::make_shared<glang::IntNode>($1);   };
+//               | func_call                       {   $$ = $1;   };
+//               | arr_access                      {   $$ = $1;   };
+
+//
 
 %%
 

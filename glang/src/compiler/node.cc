@@ -134,9 +134,11 @@ llvm::Value *IfNode::codegen(GlangContext &g_cont) {
   //
   m_if_scope->codegen(g_cont);
   //
-  if (!taken->getTerminator())
-    builder.CreateBr(not_taken);
+  // if (!taken->getTerminator()) {
+  //  std::cout << "Not terminator\n";
+  //}
   //
+  builder.CreateBr(not_taken);
   builder.SetInsertPoint(not_taken);
   return nullptr;
 }
